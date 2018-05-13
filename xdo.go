@@ -8,6 +8,7 @@ package xdo
 import "C"
 
 import (
+	"errors"
 	"runtime"
 	"unsafe"
 )
@@ -32,10 +33,13 @@ type Window struct {
 	x *Xdo
 }
 
-func (x *Xdo) GetActiveWindow() Window {
+func (x *Xdo) GetActiveWindow() (Window, error) {
 	window := C.Window(0)
 	C.xdo_get_active_window(x.x, &window)
-	return Window{window, x}
+	if window == 0 {
+		return Window{0, x}, errors.New("Failed to get active window")
+	}
+	return Window{window, x}, nil
 }
 
 func (w *Window) GetName() string {
